@@ -1,4 +1,5 @@
 import tkinter as tk
+from datetime import datetime
 
 
 class Interface:
@@ -16,10 +17,10 @@ class Interface:
         self.image_stop = tk.PhotoImage(file='images/button3.png')
         self.image_config = tk.PhotoImage(file='images/button4.png')
 
-        timer_label = tk.Label(self.master, bg='#00060D', image=self.image_ellipse, compound='center', text='00:00:00',
-                               font=('DS-Digital', 40, 'bold'), fg='#05F2DB')
-        timer_label.image = self.image_ellipse
-        timer_label.pack(pady=20)
+        self.timer_label = tk.Label(self.master, bg='#00060D', image=self.image_ellipse, compound='center',
+                                    text='1:01:10', font=('DS-Digital', 40, 'bold'), fg='#05F2DB')
+        self.timer_label.image = self.image_ellipse
+        self.timer_label.pack(pady=20)
 
         self.button_start = tk.Button(self.master, image=self.image_start, bg='#00060D', bd=0, relief='flat',
                                       activebackground='#00060D', command=self.start)
@@ -46,7 +47,7 @@ class Interface:
         self.button_pause.pack(side='left', padx=50)
         self.button_stop.pack(side='right', padx=50)
 
-        # timer(10)
+        self.countdown()
 
     def stop(self):
         self.button_pause.forget()
@@ -54,6 +55,31 @@ class Interface:
 
         self.button_start.pack(side='left', padx=50)
         self.button_config.pack(side='right', padx=50)
+
+    def countdown(self):
+        time = self.timer_label['text']
+        time = time.split(':')
+        hours, minutes, seconds = time
+        hours = int(hours)
+        minutes = int(minutes)
+        seconds = int(seconds)
+
+        if not hours == minutes == seconds == 0:
+            if minutes == seconds == 0:
+                hours -= 1
+                minutes = 59
+                seconds = 59
+            elif seconds == 0:
+                minutes -= 1
+                seconds = 59
+            else:
+                seconds -= 1
+
+            t = f'{hours}:{minutes}:{seconds}'
+            time_convert = datetime.strptime(t, '%H:%M:%S')
+
+            self.timer_label['text'] = time_convert.strftime('%H:%M:%S')
+            self.master.after(1000, self.countdown)
 
 
 app = tk.Tk()
