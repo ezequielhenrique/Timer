@@ -1,8 +1,9 @@
 import tkinter as tk
+from tkinter import messagebox
 from datetime import datetime
 
 
-class Interface(tk.Tk):
+class MainWindow(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.title('Timer')
@@ -12,12 +13,14 @@ class Interface(tk.Tk):
         self.resizable(False, False)
 
         self.data = '00:00:00'
+        self.stop_countdown = False
 
         self.image_ellipse = tk.PhotoImage(file='images/ellipse.png')
         self.image_start = tk.PhotoImage(file='images/button1.png')
         self.image_pause = tk.PhotoImage(file='images/button2.png')
         self.image_stop = tk.PhotoImage(file='images/button3.png')
         self.image_config = tk.PhotoImage(file='images/button4.png')
+        self.image_cont = tk.PhotoImage(file='images/button5.png')
 
         self.timer_label = tk.Label(self, bg='#00060D', image=self.image_ellipse, compound='center',
                                     text='00:00:00', font=('DS-Digital', 40, 'bold'), fg='#05F2DB')
@@ -25,40 +28,67 @@ class Interface(tk.Tk):
         self.timer_label.pack(pady=20)
 
         self.button_start = tk.Button(self, image=self.image_start, bg='#00060D', bd=0, relief='flat',
-                                      activebackground='#00060D', command=self.start)
+                                      activebackground='#00060D', command=self.start_timer)
         self.button_start.image = self.image_start
         self.button_start.pack(side='left', padx=50)
 
         self.button_config = tk.Button(self, image=self.image_config, bg='#00060D', bd=0, relief='flat',
-                                       activebackground='#00060D', command=lambda: Configure(self.master))
+                                       activebackground='#00060D', command=lambda: ConfigureWindow(self))
         self.button_config.image = self.image_config
         self.button_config.pack(side='right', padx=50)
 
         self.button_pause = tk.Button(self, image=self.image_pause, bg='#00060D', bd=0, relief='flat',
-                                      activebackground='#00060D')
+                                      activebackground='#00060D', command=self.pause_timer)
         self.button_pause.image = self.image_pause
 
+        self.button_cont = tk.Button(self, image=self.image_cont, bg='#00060D', bd=0, relief='flat',
+                                     activebackground='#00060D', command=self.continue_timer)
+        self.button_cont.image = self.image_cont
+
         self.button_stop = tk.Button(self, image=self.image_stop, bg='#00060D', bd=0, relief='flat',
-                                     activebackground='#00060D', command=self.stop)
+                                     activebackground='#00060D', command=self.stop_timer)
         self.button_stop.image = self.image_stop
         
-    def start(self):
-        self.button_start.forget()
-        self.button_config.forget()
+    def start_timer(self):
+        if self.timer_label['text'] == '00:00:00':
+            messagebox.showinfo('Alert', 'Informe os valores da contagem')
+        else:
+            self.button_start.forget()
+            self.button_config.forget()
 
+            self.button_pause.pack(side='left', padx=50)
+            self.button_stop.pack(side='right', padx=50)
+
+            self.stop_countdown = False
+            self.countdown()
+
+    def pause_timer(self):
+        self.stop_countdown = True
+
+        self.button_pause.forget()
+        self.button_cont.pack(side='left', padx=50)
+
+    def continue_timer(self):
+        self.button_cont.forget()
         self.button_pause.pack(side='left', padx=50)
-        self.button_stop.pack(side='right', padx=50)
 
+        self.stop_countdown = False
         self.countdown()
 
-    def stop(self):
+    def stop_timer(self):
         self.button_pause.forget()
+        self.button_cont.forget()
         self.button_stop.forget()
 
         self.button_start.pack(side='left', padx=50)
         self.button_config.pack(side='right', padx=50)
 
+        self.stop_countdown = True
+        self.timer_label['text'] = '00:00:00'
+
     def countdown(self):
+        if self.stop_countdown:
+            return
         time = self.timer_label['text']
         time = time.split(':')
         hours, minutes, seconds = time
@@ -84,11 +114,14 @@ class Interface(tk.Tk):
             self.after(1000, self.countdown)
 
     def set_values(self):
-        time_convert = datetime.strptime(self.data, '%H:%M:%S')
-        self.timer_label['text'] = time_convert.strftime('%H:%M:%S')
+        try:
+            time_convert = datetime.strptime(self.data, '%H:%M:%S')
+            self.timer_label['text'] = time_convert.strftime('%H:%M:%S')
+        except ValueError:
+            messagebox.showerror('ValueError', 'Os valores de horas, minutos e segundos não podem ser maiores que 59')
 
 
-class Configure(tk.Toplevel):
+class ConfigureWindow(tk.Toplevel):
     def __init__(self, master):
         tk.Toplevel.__init__(self, master)
         self.transient(master)
@@ -139,7 +172,7 @@ class Configure(tk.Toplevel):
 
 
 def main():
-    Interface().mainloop()
+    MainWindow().mainloop()
 
 
 if __name__ == '__main__':
