@@ -52,7 +52,7 @@ class MainWindow(tk.Tk):
         
     def start_timer(self):
         if self.timer_label['text'] == '00:00:00':
-            messagebox.showinfo('Alert', 'Informe os valores da contagem')
+            messagebox.showinfo('Alert', 'Selecione os valores da contagem')
         else:
             self.button_start.forget()
             self.button_config.forget()
@@ -123,15 +123,18 @@ class MainWindow(tk.Tk):
             time_convert = datetime.strptime(self.data, '%H:%M:%S')
             self.timer_label['text'] = time_convert.strftime('%H:%M:%S')
         except ValueError:
-            messagebox.showerror('ValueError', 'Os valores de horas, minutos e segundos não podem ser maiores que 59')
+            messagebox.showerror('ValueError', 'O tempo não pode ser maior que 23:59:59')
 
 
 class ConfigureWindow(tk.Toplevel):
     def __init__(self, master):
         tk.Toplevel.__init__(self, master)
+        self.master = master
         self.transient(master)
         self.title('Configure')
-        self.geometry('250x230')
+        window_x = int(self.master.winfo_x()+150)
+        window_y = int(self.master.winfo_y()+138)
+        self.geometry(f'250x230+{str(window_x)}+{str(window_y)}')
         self.iconbitmap('images/icontimer.ico')
         self.resizable(False, False)
         self.configure(background='#00060D')
@@ -167,7 +170,7 @@ class ConfigureWindow(tk.Toplevel):
 
     def confirm(self):
         def check_get(value):
-            if value == '':
+            if value.strip() == '':
                 return '0'
             else:
                 return value
@@ -176,14 +179,17 @@ class ConfigureWindow(tk.Toplevel):
         minutes = check_get(self.entry_m.get())
         seconds = check_get(self.entry_s.get())
 
-        if int(hours) == int(minutes) == int(seconds) == 0:
-            messagebox.showinfo('ValueError', 'Informe os valores!')
-        else:
-            time = f'{hours}:{minutes}:{seconds}'
+        try:
+            if int(hours) == int(minutes) == int(seconds) == 0:
+                messagebox.showinfo('Alert', 'Informe os valores!')
+            else:
+                time = f'{hours}:{minutes}:{seconds}'
 
-            self.master.data = time
-            self.master.set_values()
-            self.destroy()
+                self.master.data = time
+                self.master.set_values()
+                self.destroy()
+        except ValueError:
+            messagebox.showerror('Error', 'Valores literais são inválidos')
 
 
 def main():
