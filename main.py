@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from datetime import datetime
+from player import play_sound
 
 
 class MainWindow(tk.Tk):
@@ -59,10 +60,12 @@ class MainWindow(tk.Tk):
             self.button_pause.pack(side='left', padx=50)
             self.button_stop.pack(side='right', padx=50)
 
+            play_sound()
             self.stop_countdown = False
             self.countdown()
 
     def pause_timer(self):
+        play_sound()
         self.stop_countdown = True
 
         self.button_pause.forget()
@@ -72,6 +75,7 @@ class MainWindow(tk.Tk):
         self.button_cont.forget()
         self.button_pause.pack(side='left', padx=50)
 
+        play_sound()
         self.stop_countdown = False
         self.countdown()
 
@@ -83,6 +87,7 @@ class MainWindow(tk.Tk):
         self.button_start.pack(side='left', padx=50)
         self.button_config.pack(side='right', padx=50)
 
+        play_sound()
         self.stop_countdown = True
         self.timer_label['text'] = '00:00:00'
 
@@ -161,14 +166,24 @@ class ConfigureWindow(tk.Toplevel):
         button.pack(pady=10)
 
     def confirm(self):
-        hours = self.entry_h.get()
-        minutes = self.entry_m.get()
-        seconds = self.entry_s.get()
-        time = f'{hours}:{minutes}:{seconds}'
+        def check_get(value):
+            if value == '':
+                return '0'
+            else:
+                return value
 
-        self.master.data = time
-        self.master.set_values()
-        self.destroy()
+        hours = check_get(self.entry_h.get())
+        minutes = check_get(self.entry_m.get())
+        seconds = check_get(self.entry_s.get())
+
+        if int(hours) == int(minutes) == int(seconds) == 0:
+            messagebox.showinfo('ValueError', 'Informe os valores!')
+        else:
+            time = f'{hours}:{minutes}:{seconds}'
+
+            self.master.data = time
+            self.master.set_values()
+            self.destroy()
 
 
 def main():
