@@ -2,6 +2,17 @@ import tkinter as tk
 from tkinter import messagebox
 from datetime import datetime
 from player import play_sound
+import os
+
+
+def resource_path(relative_path):
+    import sys
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
+
+images_dir = resource_path('images')
 
 
 class MainWindow(tk.Tk):
@@ -9,19 +20,19 @@ class MainWindow(tk.Tk):
         tk.Tk.__init__(self)
         self.title('Timer')
         self.geometry('550x550')
-        self.iconbitmap('images/icontimer.ico')
+        self.iconbitmap(images_dir + '/icontimer.ico')
         self.configure(background='#00060D')
         self.resizable(False, False)
 
         self.data = '00:00:00'
         self.stop_countdown = False
 
-        self.image_ellipse = tk.PhotoImage(file='images/ellipse.png')
-        self.image_start = tk.PhotoImage(file='images/button1.png')
-        self.image_pause = tk.PhotoImage(file='images/button2.png')
-        self.image_stop = tk.PhotoImage(file='images/button3.png')
-        self.image_config = tk.PhotoImage(file='images/button4.png')
-        self.image_cont = tk.PhotoImage(file='images/button5.png')
+        self.image_ellipse = tk.PhotoImage(file=images_dir + '/ellipse.png')
+        self.image_start = tk.PhotoImage(file=images_dir + '/button1.png')
+        self.image_pause = tk.PhotoImage(file=images_dir + '/button2.png')
+        self.image_stop = tk.PhotoImage(file=images_dir + '/button3.png')
+        self.image_config = tk.PhotoImage(file=images_dir + '/button4.png')
+        self.image_cont = tk.PhotoImage(file=images_dir + '/button5.png')
 
         self.timer_label = tk.Label(self, bg='#00060D', image=self.image_ellipse, compound='center',
                                     text='00:00:00', font=('DS-Digital', 40, 'bold'), fg='#05F2DB')
@@ -117,6 +128,8 @@ class MainWindow(tk.Tk):
 
             self.timer_label['text'] = time_convert.strftime('%H:%M:%S')
             self.after(1000, self.countdown)
+        else:
+            self.stop_timer()
 
     def set_values(self):
         try:
@@ -135,9 +148,10 @@ class ConfigureWindow(tk.Toplevel):
         window_x = int(self.master.winfo_x()+150)
         window_y = int(self.master.winfo_y()+138)
         self.geometry(f'250x230+{str(window_x)}+{str(window_y)}')
-        self.iconbitmap('images/icontimer.ico')
+        self.iconbitmap(images_dir + '/icontimer.ico')
         self.resizable(False, False)
         self.configure(background='#00060D')
+        self.grab_set()
 
         line1 = tk.Frame(self, bg='#00060D')
         line2 = tk.Frame(self, bg='#00060D')
